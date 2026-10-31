@@ -31,8 +31,13 @@
       if(p.mpu){$("bleAccel").textContent=[p.ax,p.ay,p.az].map(v=>Number(v).toFixed(2)).join(" / ")+" g";$("bleMagnitude").textContent=Number(p.g||0).toFixed(2)+" g";}
       else{$("bleAccel").textContent="Нет данных";$("bleMagnitude").textContent="—";}
       $("bleButtonState").textContent=p.button?"Нажата":"Не нажата";
-      if(p.mpu===false)$("bleDeviceState").textContent="MPU6050 не найден";
-      stateChange(p.state);
+      if(p.mpu===false){
+        $("bleDeviceState").textContent="MPU6050 не найден";
+        setStatus("warning","MPU6050 не обнаружен","Проверьте питание датчика и линии SDA/SCL.","НЕТ ДАТЧИКА");
+        $("monitorStatus").textContent="Нет данных";
+      }else{
+        stateChange(p.state);
+      }
       $("deviceLastSeen").textContent="Последние данные: "+new Date().toLocaleTimeString();
     }else if(p.type==="event"){
       stateChange(p.event);
