@@ -74,7 +74,6 @@ function startFall(){
   $("countdown").hidden=false; $("countdownValue").textContent=countdown;
   $("monitorStatus").textContent="Тревога";
   logEvent("Обнаружено падение","Событие получено от датчиков ESP32","Активно");
-  playSound("fall");
   alarmTimer=setInterval(()=>{
     countdown--; $("countdownValue").textContent=countdown;
     if(countdown<=0){
@@ -83,7 +82,6 @@ function startFall(){
       setStatus("warning","Требуется помощь","Время ожидания завершено. Устройство перешло в режим SOS.","SOS");
       $("monitorMessage").textContent="Активирован сигнал SOS.";
       logEvent("Активирован SOS","Тревога не была отменена в течение 15 секунд","Активно");
-      playSound("sos");
     }
   },1000);
 }
@@ -95,7 +93,7 @@ function cancelFall(){
   $("monitorMessage").textContent="Тревога отменена. Мониторинг продолжается.";
   setStatus("normal","Тревога отменена","Пользователь подтвердил, что помощь не требуется.","ОТМЕНЕНО");
   logEvent("Тревога отменена","Тревога отменена пользователем","Отменено");
-  playSound("normal"); showToast("Тревога отменена.");
+  showToast("Тревога отменена.");
 }
 $("cancelAlarm").addEventListener("click",()=>{if(window.fallguardSendCommand)window.fallguardSendCommand("CANCEL");});
 function activateSOS(source="Кнопка SOS"){
@@ -104,7 +102,6 @@ function activateSOS(source="Кнопка SOS"){
   $("monitorStatus").textContent="SOS";
   $("monitorMessage").textContent="Сигнал SOS активирован устройством.";
   logEvent("Активирован SOS",source,"Активно");
-  playSound("sos");
   $("modalContactName").textContent=data.contact.name || "Контакт не указан";
   $("modalContactPhone").textContent=data.contact.phone || "Номер не указан";
   $("sosSummary").textContent=`${data.profile.name || "Пользователь"} · Устройство ${data.profile.deviceId || "FG-ESP32-001"}. ${data.location ? "Геолокация получена." : "Геолокация ещё не получена."}`;
@@ -178,26 +175,6 @@ $("getLocation").addEventListener("click",getLocation);
 $("getLocationMini").addEventListener("click",()=>{navigate("location");setTimeout(getLocation,150);});
 $("openMapLink").addEventListener("click",()=>{if(data.location)window.open(`https://www.google.com/maps?q=${data.location.lat},${data.location.lng}`,"_blank","noopener");});
 $("clearEvents").addEventListener("click",()=>{if(confirm("Очистить всю историю событий?")){data.events=[];saveData();renderEvents();showToast("История очищена.");}});
-
-let audioCtx=null;
-function tone(freq,duration,delay=0,type="sine",volume=.12){
-  if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();
-  const osc=audioCtx.createOscillator(),gain=audioCtx.createGain();
-  osc.type=type;osc.frequency.value=freq;gain.gain.setValueAtTime(0,audioCtx.currentTime+delay);
-  gain.gain.linearRampToValueAtTime(volume,audioCtx.currentTime+delay+.015);
-  gain.gain.setValueAtTime(volume,audioCtx.currentTime+delay+duration-.03);
-  gain.gain.linearRampToValueAtTime(0,audioCtx.currentTime+delay+duration);
-  osc.connect(gain);gain.connect(audioCtx.destination);osc.start(audioCtx.currentTime+delay);osc.stop(audioCtx.currentTime+delay+duration);
-}
-function playSound(kind){
-  try{
-    if(kind==="normal"){tone(660,.12);tone(880,.16,.18);}
-    if(kind==="warning"){tone(740,.16);tone(740,.16,.32);tone(740,.16,.64);}
-    if(kind==="fall"){for(let i=0;i<5;i++){tone(i%2?620:920,.18,i*.27,"square",.08);}}
-    if(kind==="sos"){[880,880,880,0,660,660,660,0,880,880,880].forEach((f,i)=>{if(f)tone(f,.13,i*.2,"sawtooth",.07);});}
-  }catch(e){showToast("Нажмите ещё раз, чтобы включить звук браузера.");}
-}
-document.querySelectorAll(".sound-test").forEach(b=>b.addEventListener("click",()=>{playSound(b.dataset.sound);showToast("Воспроизводится: +b.dataset.sound+");}));
 
 function populateForms(){
   $("fullName").value=data.profile.name||"";$("age").value=data.profile.age||"";
