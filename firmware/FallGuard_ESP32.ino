@@ -28,7 +28,7 @@ const char* modeName(){return mode==FALL_ALARM?"FALL_ALARM":mode==SOS_ACTIVE?"SO
 void sendJSON(const String &s){
   Serial.println(s);
   if(bleConnected&&txChar){
-    String payload=s+"\\n";
+    String payload=s+"\n";
     // Keep notifications below the default ATT payload size.
     for(unsigned int i=0;i<payload.length();i+=18){
       String part=payload.substring(i,i+18);
