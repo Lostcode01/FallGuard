@@ -2,8 +2,15 @@ $ErrorActionPreference = "Stop"
 Set-Location $PSScriptRoot
 if (-not (Get-Command node -ErrorAction SilentlyContinue)) { throw "Node.js не найден. Установите Node.js и откройте PowerShell заново." }
 
+# Refresh PATH from Windows registry so newly installed commands are visible here.
+$machinePath = [Environment]::GetEnvironmentVariable("Path", "Machine")
+$userPath = [Environment]::GetEnvironmentVariable("Path", "User")
+$env:Path = "$machinePath;$userPath;$env:LOCALAPPDATA\Microsoft\WinGet\Links;$env:LOCALAPPDATA\Microsoft\WindowsApps"
+
 if (-not (Get-Command mkcert -ErrorAction SilentlyContinue)) {
-    if (-not (Get-Command winget -ErrorAction SilentlyContinue)) { throw "Не найден winget. Установите mkcert для Windows и повторите запуск." }
+    if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+        throw "Не найден winget. Установите mkcert для Windows и повторите запуск."
+    }
     Write-Host "Устанавливаю mkcert..."
     winget install --id FiloSottile.mkcert -e --accept-package-agreements --accept-source-agreements
     $machinePath = [Environment]::GetEnvironmentVariable("Path", "Machine")
@@ -11,7 +18,7 @@ if (-not (Get-Command mkcert -ErrorAction SilentlyContinue)) {
     $env:Path = "$machinePath;$userPath;$env:LOCALAPPDATA\Microsoft\WinGet\Links;$env:LOCALAPPDATA\Microsoft\WindowsApps"
 }
 if (-not (Get-Command mkcert -ErrorAction SilentlyContinue)) {
-    throw "mkcert установлен, но Windows пока не видит команду. Закройте PowerShell, откройте его снова и повторите .\setup-local.ps1."
+    throw "Команда mkcert не найдена. Закройте PowerShell, откройте его снова и повторите .\setup-local.ps1."
 }
 
 $ip = Get-NetIPConfiguration | Where-Object { $_.IPv4DefaultGateway -and $_.IPv4Address } | ForEach-Object { $_.IPv4Address.IPAddress } | Where-Object { $_ -notlike "169.254.*" } | Select-Object -First 1
