@@ -44,6 +44,13 @@
           <div class="date-chip" id="todayDate"></div>
         </div>
 
+        <article class="panel ble-panel">
+          <div class="panel-head"><div><h3>ESP32 device connection</h3><p>Connect the wearable using Bluetooth Low Energy</p></div><span class="soft-label" id="bleState">NOT CONNECTED</span></div>
+          <div class="ble-controls"><div><b id="bleDeviceName">No device connected</b><small id="deviceLastSeen">Use Chrome or Edge and allow Bluetooth access.</small></div><button class="btn btn-primary" id="deviceConnectBtn">Connect ESP32</button></div>
+          <div class="ble-readings"><div><small>ACCELERATION</small><b id="bleAccel">—</b></div><div><small>MAGNITUDE</small><b id="bleMagnitude">—</b></div><div><small>DEVICE STATE</small><b id="bleDeviceState">—</b></div></div>
+          <p class="ble-help" id="bleHelp">The ESP32 must be powered on and nearby. Only one browser (PC or phone) can connect at a time.</p>
+        </article>
+
         <div class="status-banner" id="statusBanner">
           <div class="status-icon">✓</div>
           <div class="status-copy"><b id="statusHeading">System operating normally</b><span id="statusDescription">No fall events detected. Monitoring is ready.</span></div>
@@ -165,5 +172,6 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
           integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="app.js"></script>
+  <script src="ble.js"></script>
 </body>
 </html>
