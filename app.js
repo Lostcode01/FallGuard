@@ -21,7 +21,7 @@ function showToast(message){
   const t=$("toast"); t.textContent=message; t.classList.add("show");
   clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),2600);
 }
-function nowText(){ return new Date().toLocaleString([], {dateStyle:"medium",timeStyle:"short"}); }
+function nowText(){ return new Date().toLocaleString("ru-RU", {dateStyle:"medium",timeStyle:"short"}); }
 function logEvent(type, description, status="Recorded"){
   data.events.unshift({type,description,time:new Date().toISOString(),status});
   data.events=data.events.slice(0,100); saveData(); renderEvents();
@@ -30,8 +30,8 @@ function eventTone(type){ return /SOS|Fall|Alarm/i.test(type) ? "danger" : /Warn
 function eventIcon(type){ return /SOS/i.test(type)?"!":/Fall|Alarm/i.test(type)?"⚠":"✓"; }
 function renderEvents(){
   const recent=$("recentEvents"), rows=data.events.slice(0,4);
-  recent.innerHTML=rows.length?rows.map(e=>`<div class="activity-item"><div class="activity-icon ${eventTone(e.type)}">${eventIcon(e.type)}</div><div><b>${escapeHtml(e.type)}</b><small>${escapeHtml(e.description)}</small></div><span class="activity-time">${new Date(e.time).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}</span></div>`).join(""):'<div class="empty-state">Событий пока нет.</div>';
-  $("eventTable").innerHTML=data.events.length?data.events.map(e=>`<tr><td>${escapeHtml(e.type)}</td><td>${escapeHtml(e.description)}</td><td>${new Date(e.time).toLocaleString()}</td><td><span class="event-badge ${eventTone(e.type)}">${escapeHtml(e.status)}</span></td></tr>`).join(""):'<tr><td colspan="4" class="empty-cell">Событий пока нет.</td></tr>';
+  recent.innerHTML=rows.length?rows.map(e=>`<div class="activity-item"><div class="activity-icon ${eventTone(e.type)}">${eventIcon(e.type)}</div><div><b>${escapeHtml(e.type)}</b><small>${escapeHtml(e.description)}</small></div><span class="activity-time">${new Date(e.time).toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"})}</span></div>`).join(""):'<div class="empty-state">Событий пока нет.</div>';
+  $("eventTable").innerHTML=data.events.length?data.events.map(e=>`<tr><td>${escapeHtml(e.type)}</td><td>${escapeHtml(e.description)}</td><td>${new Date(e.time).toLocaleString("ru-RU")}</td><td><span class="event-badge ${eventTone(e.type)}">${escapeHtml(e.status)}</span></td></tr>`).join(""):'<tr><td colspan="4" class="empty-cell">Событий пока нет.</td></tr>';
 }
 function escapeHtml(value){return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function updateDashboard(){
@@ -97,6 +97,7 @@ function cancelFall(){
   logEvent("Тревога отменена","Тревога отменена пользователем","Отменено");
   playSound("normal"); showToast("Тревога отменена.");
 }
+$("cancelAlarm").addEventListener("click",()=>{if(window.fallguardSendCommand)window.fallguardSendCommand("CANCEL");});
 function activateSOS(source="Кнопка SOS"){
   if(alarmTimer){clearInterval(alarmTimer);alarmTimer=null;$("countdown").hidden=true;$("cancelAlarm").disabled=true;}
   setStatus("alert","Активирован сигнал SOS","Устройство отправило сигнал SOS. Проверьте контакт и местоположение.","SOS АКТИВЕН");
@@ -104,9 +105,9 @@ function activateSOS(source="Кнопка SOS"){
   $("monitorMessage").textContent="Сигнал SOS активирован устройством.";
   logEvent("Активирован SOS",source,"Активно");
   playSound("sos");
-  $("modalContactName").textContent=data.contact.name || "No contact configured";
-  $("modalContactPhone").textContent=data.contact.phone || "No demonstration number saved";
-  $("sosSummary").textContent=`${data.profile.name || "User"} · Device ${data.profile.deviceId || "FG-ESP32-001"}. ${data.location ? "A phone location is available." : "No GPS location has been acquired yet."}`;
+  $("modalContactName").textContent=data.contact.name || "Контакт не указан";
+  $("modalContactPhone").textContent=data.contact.phone || "Номер не указан";
+  $("sosSummary").textContent=`${data.profile.name || "Пользователь"} · Device ${data.profile.deviceId || "FG-ESP32-001"}. ${data.location ? "Геолокация получена." : "Геолокация ещё не получена."}`;
   const safeNumber=data.contact.phone.replace(/[^\d+*#,;]/g,"");
   $("openDialer").disabled=!safeNumber;
   $("openDialer").dataset.number=safeNumber;
@@ -118,19 +119,19 @@ $("sosModal").addEventListener("click",e=>{if(e.target===$("sosModal"))$("sosMod
 $("openDialer").addEventListener("click",()=>{
   const number=$("openDialer").dataset.number;
   if(!number)return;
-  logEvent("Dialer opened","User chose to open the phone dialer for the saved demonstration contact","User action");
+  logEvent("Открыт набор номера","Пользователь открыл набор номера контакта","User action");
   window.location.href="tel:"+number;
 });
 
 $("profileForm").addEventListener("submit",e=>{
   e.preventDefault();
   data.profile={name:$("fullName").value.trim(),age:$("age").value,deviceId:$("deviceId").value.trim(),medicalInfo:$("medicalInfo").value.trim()};
-  saveData(); $("profileFeedback").textContent="Профиль сохранён."; logEvent("Profile updated","User profile information was saved"); showToast("Профиль сохранён.");
+  saveData(); $("profileFeedback").textContent="Профиль сохранён."; logEvent("Профиль обновлён","Сохранены данные пользователя"); showToast("Профиль сохранён.");
 });
 $("contactForm").addEventListener("submit",e=>{
   e.preventDefault();
   data.contact={name:$("contactName").value.trim(),phone:$("contactPhone").value.trim(),relation:$("contactRelation").value.trim()};
-  saveData(); $("contactFeedback").textContent="Контакт сохранён."; logEvent("Contact updated","Demonstration emergency contact was saved"); showToast("Контакт сохранён.");
+  saveData(); $("contactFeedback").textContent="Контакт сохранён."; logEvent("Контакт обновлён","Сохранён контакт для связи"); showToast("Контакт сохранён.");
 });
 
 function initMap(){
@@ -143,7 +144,7 @@ function initMap(){
   }
   if(data.location){
     const p=[data.location.lat,data.location.lng];
-    if(marker)marker.setLatLng(p);else marker=L.marker(p).addTo(map).bindPopup("Current phone location");
+    if(marker)marker.setLatLng(p);else marker=L.marker(p).addTo(map).bindPopup("Текущее местоположение");
     map.setView(p,16);
   }
 }
@@ -164,7 +165,7 @@ function getLocation(){
     saveData();
     $("locationStatus").textContent="Получено";$("latitude").textContent=c.latitude.toFixed(6);$("longitude").textContent=c.longitude.toFixed(6);
     $("accuracy").textContent="±"+Math.round(c.accuracy)+" m";$("locationTime").textContent=nowText();$("openMapLink").disabled=false;
-    initMap(); if(map){map.setView([c.latitude,c.longitude],16);if(marker)marker.setLatLng([c.latitude,c.longitude]);else marker=L.marker([c.latitude,c.longitude]).addTo(map).bindPopup("Current phone location");}
+    initMap(); if(map){map.setView([c.latitude,c.longitude],16);if(marker)marker.setLatLng([c.latitude,c.longitude]);else marker=L.marker([c.latitude,c.longitude]).addTo(map).bindPopup("Текущее местоположение");}
     initMiniMap();if(miniMap){if(miniMarker)miniMarker.setLatLng([c.latitude,c.longitude]);else miniMarker=L.marker([c.latitude,c.longitude]).addTo(miniMap);miniMap.setView([c.latitude,c.longitude],13);}
     showToast("Местоположение получено.");logEvent("Обновлена геолокация","Координаты получены из браузера телефона");
   },err=>{
@@ -194,17 +195,17 @@ function playSound(kind){
     if(kind==="warning"){tone(740,.16);tone(740,.16,.32);tone(740,.16,.64);}
     if(kind==="fall"){for(let i=0;i<5;i++){tone(i%2?620:920,.18,i*.27,"square",.08);}}
     if(kind==="sos"){[880,880,880,0,660,660,660,0,880,880,880].forEach((f,i)=>{if(f)tone(f,.13,i*.2,"sawtooth",.07);});}
-  }catch(e){showToast("Tap again to enable browser audio.");}
+  }catch(e){showToast("Нажмите ещё раз, чтобы включить звук браузера.");}
 }
-document.querySelectorAll(".sound-test").forEach(b=>b.addEventListener("click",()=>{playSound(b.dataset.sound);showToast("Playing "+b.dataset.sound+" preview.");}));
+document.querySelectorAll(".sound-test").forEach(b=>b.addEventListener("click",()=>{playSound(b.dataset.sound);showToast("Воспроизводится: +b.dataset.sound+");}));
 
 function populateForms(){
   $("fullName").value=data.profile.name||"";$("age").value=data.profile.age||"";
   $("deviceId").value=data.profile.deviceId||"FG-ESP32-001";$("medicalInfo").value=data.profile.medicalInfo||"";
   $("contactName").value=data.contact.name||"";$("contactPhone").value=data.contact.phone||"";$("contactRelation").value=data.contact.relation||"";
   if(data.location){
-    $("locationStatus").textContent="Location saved";$("latitude").textContent=data.location.lat.toFixed(6);$("longitude").textContent=data.location.lng.toFixed(6);
-    $("accuracy").textContent="±"+Math.round(data.location.accuracy)+" m";$("locationTime").textContent=new Date(data.location.time).toLocaleString();$("openMapLink").disabled=false;
+    $("locationStatus").textContent="Сохранена";$("latitude").textContent=data.location.lat.toFixed(6);$("longitude").textContent=data.location.lng.toFixed(6);
+    $("accuracy").textContent="±"+Math.round(data.location.accuracy)+" m";$("locationTime").textContent=new Date(data.location.time).toLocaleString("ru-RU");$("openMapLink").disabled=false;
   }
 }
 populateForms();updateDashboard();renderEvents();initMiniMap();
