@@ -107,7 +107,7 @@ function activateSOS(source="Кнопка SOS"){
   playSound("sos");
   $("modalContactName").textContent=data.contact.name || "Контакт не указан";
   $("modalContactPhone").textContent=data.contact.phone || "Номер не указан";
-  $("sosSummary").textContent=`${data.profile.name || "Пользователь"} · Device ${data.profile.deviceId || "FG-ESP32-001"}. ${data.location ? "Геолокация получена." : "Геолокация ещё не получена."}`;
+  $("sosSummary").textContent=`${data.profile.name || "Пользователь"} · Устройство ${data.profile.deviceId || "FG-ESP32-001"}. ${data.location ? "Геолокация получена." : "Геолокация ещё не получена."}`;
   const safeNumber=data.contact.phone.replace(/[^\d+*#,;]/g,"");
   $("openDialer").disabled=!safeNumber;
   $("openDialer").dataset.number=safeNumber;
