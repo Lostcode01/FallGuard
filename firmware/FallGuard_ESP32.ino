@@ -63,8 +63,8 @@ void buttonTask(){
  int r=digitalRead(BUTTON);if(r!=previousRead)lastDebounce=millis();
  if(millis()-lastDebounce>35&&r!=stableRead){
   stableRead=r;
-  if(stableRead==LOW){buttonHeld=true;longDone=false;pressedAt=millis();}
-  else if(buttonHeld){if(!longDone&&millis()-pressedAt<3000&&(mode==FALL_ALARM||mode==SOS_ACTIVE))cancelMode();buttonHeld=false;}
+  if(stableRead==LOW){buttonHeld=true;longDone=false;pressedAt=millis();event("BUTTON_PRESSED");}
+  else if(buttonHeld){if(!longDone&&millis()-pressedAt<3000&&(mode==FALL_ALARM||mode==SOS_ACTIVE))cancelMode();buttonHeld=false;event("BUTTON_RELEASED");}
  }
  previousRead=r;
  if(buttonHeld&&!longDone&&millis()-pressedAt>=3000){longDone=true;sos();}
@@ -93,6 +93,6 @@ void loop(){
  if(mpuOK&&t-lastRead>=40){lastRead=t;if(readMPU())detectFall();}
  buttonTask();buzzerTask();
  if(mode==FALL_ALARM&&t-fallStart>=15000)sos();
- if(t-lastSend>=250){lastSend=t;char out[240];snprintf(out,sizeof(out),"{\"type\":\"status\",\"state\":\"%s\",\"ax\":%.3f,\"ay\":%.3f,\"az\":%.3f,\"gx\":%.1f,\"gy\":%.1f,\"gz\":%.1f,\"g\":%.3f}",modeName(),ax,ay,az,gx,gy,gz,totalG);sendJSON(out);}
+ if(t-lastSend>=250){lastSend=t;char out[240];snprintf(out,sizeof(out),"{\"type\":\"status\",\"state\":\"%s\",\"ax\":%.3f,\"ay\":%.3f,\"az\":%.3f,\"gx\":%.1f,\"gy\":%.1f,\"gz\":%.1f,\"g\":%.3f}",modeName(),mpuOK?"true":"false",stableRead==LOW?"true":"false",ax,ay,az,gx,gy,gz,totalG);sendJSON(out);}
  delay(2);
 }
