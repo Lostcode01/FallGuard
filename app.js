@@ -22,7 +22,7 @@ function showToast(message){
   clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),2600);
 }
 function nowText(){ return new Date().toLocaleString("ru-RU", {dateStyle:"medium",timeStyle:"short"}); }
-function logEvent(type, description, status="Recorded"){
+function logEvent(type, description, status="Записано"){
   data.events.unshift({type,description,time:new Date().toISOString(),status});
   data.events=data.events.slice(0,100); saveData(); renderEvents();
 }
@@ -205,7 +205,7 @@ function populateForms(){
   $("contactName").value=data.contact.name||"";$("contactPhone").value=data.contact.phone||"";$("contactRelation").value=data.contact.relation||"";
   if(data.location){
     $("locationStatus").textContent="Сохранена";$("latitude").textContent=data.location.lat.toFixed(6);$("longitude").textContent=data.location.lng.toFixed(6);
-    $("accuracy").textContent="±"+Math.round(data.location.accuracy)+" m";$("locationTime").textContent=new Date(data.location.time).toLocaleString("ru-RU");$("openMapLink").disabled=false;
+    $("accuracy").textContent="±"+Math.round(data.location.accuracy)+" м";$("locationTime").textContent=new Date(data.location.time).toLocaleString("ru-RU");$("openMapLink").disabled=false;
   }
 }
 populateForms();updateDashboard();renderEvents();initMiniMap();
