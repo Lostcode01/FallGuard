@@ -51,7 +51,7 @@
   }
   async function command(cmd){
     if(!connected||!rx){showToast("Сначала подключите ESP32.");return;}
-    try{const bytes=new TextEncoder().encode(JSON.stringify({cmd})+"\n");await rx.writeValueWithResponse(bytes);}
+    try{const shortCommand=cmd==="BUZZER_TEST"?"BEEP":cmd==="MPU_TEST"?"MPU":cmd;const bytes=new TextEncoder().encode(JSON.stringify({c:shortCommand}));await rx.writeValueWithResponse(bytes);}
     catch(e){console.error(e);showToast("Не удалось отправить команду устройству.");}
   }
   async function connect(){
