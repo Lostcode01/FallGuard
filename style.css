@@ -18,3 +18,8 @@
 .ble-readings b{font:700 12px Manrope;overflow-wrap:anywhere}
 .ble-help{margin:12px 0 0}
 @media(max-width:480px){.ble-controls{align-items:stretch;flex-direction:column}.ble-controls .btn{width:100%}.ble-readings{gap:6px}.ble-readings>div{padding:8px}.ble-readings b{font-size:10px}}
+
+.ble-readings{grid-template-columns:repeat(4,minmax(0,1fr))}
+.ble-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:13px}
+.ble-actions .btn{font-size:10px}
+@media(max-width:480px){.ble-readings{grid-template-columns:repeat(2,minmax(0,1fr))}}
