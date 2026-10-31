@@ -40,7 +40,7 @@ function updateDashboard(){
   $("eventCount").textContent=data.events.length;
   $("contactPreviewName").textContent=data.contact.name || "Контакт не указан";
   $("contactPreviewPhone").textContent=data.contact.phone || "Добавьте контакт в настройках";
-  $("todayDate").textContent=new Date().toLocaleDateString([], {weekday:"short",month:"short",day:"numeric",year:"numeric"});
+  $("todayDate").textContent=new Date().toLocaleDateString("ru-RU", {weekday:"short",month:"short",day:"numeric",year:"numeric"});
   if(data.location){
     $("gpsStatus").textContent="Доступна"; $("gpsSmall").textContent="Точность ±"+Math.round(data.location.accuracy)+" м";
     $("miniCoordinates").textContent=`Широта: ${data.location.lat.toFixed(5)}   Долгота: ${data.location.lng.toFixed(5)}`;
@@ -63,7 +63,7 @@ function setStatus(kind, heading, description, tag){
   $("statusHeading").textContent=heading; $("statusDescription").textContent=description; $("statusTag").textContent=tag;
   $("monitorRing").className="monitor-ring"+(kind==="alert"?" alert-ring":kind==="warning"?" warning-ring":"");
   $("monitorBig").textContent=kind==="alert"?"ALARM":kind==="warning"?"WARNING":"READY";
-  $("monitorSub").textContent=kind==="alert"?"Fall event active":kind==="warning"?"Awaiting response":"Тревога не активна";
+  $("monitorSub").textContent=kind==="alert"?"Требуется проверка":kind==="warning"?"Ожидание помощи":"Тревога не активна";
 }
 function startFall(){
   if(alarmTimer) return;
@@ -119,7 +119,7 @@ $("sosModal").addEventListener("click",e=>{if(e.target===$("sosModal"))$("sosMod
 $("openDialer").addEventListener("click",()=>{
   const number=$("openDialer").dataset.number;
   if(!number)return;
-  logEvent("Открыт набор номера","Пользователь открыл набор номера контакта","User action");
+  logEvent("Открыт набор номера","Пользователь открыл набор номера контакта","Действие пользователя");
   window.location.href="tel:"+number;
 });
 
@@ -164,7 +164,7 @@ function getLocation(){
     data.location={lat:c.latitude,lng:c.longitude,accuracy:c.accuracy,time:new Date().toISOString()};
     saveData();
     $("locationStatus").textContent="Получено";$("latitude").textContent=c.latitude.toFixed(6);$("longitude").textContent=c.longitude.toFixed(6);
-    $("accuracy").textContent="±"+Math.round(c.accuracy)+" m";$("locationTime").textContent=nowText();$("openMapLink").disabled=false;
+    $("accuracy").textContent="±"+Math.round(c.accuracy)+" м";$("locationTime").textContent=nowText();$("openMapLink").disabled=false;
     initMap(); if(map){map.setView([c.latitude,c.longitude],16);if(marker)marker.setLatLng([c.latitude,c.longitude]);else marker=L.marker([c.latitude,c.longitude]).addTo(map).bindPopup("Текущее местоположение");}
     initMiniMap();if(miniMap){if(miniMarker)miniMarker.setLatLng([c.latitude,c.longitude]);else miniMarker=L.marker([c.latitude,c.longitude]).addTo(miniMap);miniMap.setView([c.latitude,c.longitude],13);}
     showToast("Местоположение получено.");logEvent("Обновлена геолокация","Координаты получены из браузера телефона");
