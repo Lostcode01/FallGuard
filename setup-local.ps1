@@ -25,9 +25,15 @@ $ip = Get-NetIPConfiguration | Where-Object { $_.IPv4DefaultGateway -and $_.IPv4
 if (-not $ip) { throw "Не удалось определить локальный IP. Проверьте Wi-Fi и команду ipconfig." }
 
 New-Item -ItemType Directory -Force -Path ".\certs" | Out-Null
-Write-Host "Устанавливаю локальный центр сертификации..."
+Write-Host "Проверяю локальный центр сертификации Windows..."
+# Для Chrome и Edge достаточно хранилища Windows; Java keystore не используется.
+$previousTrustStores = $env:TRUST_STORES
+$env:TRUST_STORES = "system"
 mkcert -install
-if ($LASTEXITCODE -ne 0) { throw "Не удалось выполнить mkcert -install." }
+$installExitCode = $LASTEXITCODE
+if ($null -eq $previousTrustStores) { Remove-Item Env:TRUST_STORES -ErrorAction SilentlyContinue }
+else { $env:TRUST_STORES = $previousTrustStores }
+if ($installExitCode -ne 0) { throw "Не удалось установить сертификат в хранилище Windows. Проверьте права пользователя." }
 
 Write-Host "Создаю HTTPS-сертификат для IP $ip..."
 mkcert -cert-file ".\certs\fallguard.pem" -key-file ".\certs\fallguard-key.pem" localhost 127.0.0.1 ::1 $ip
