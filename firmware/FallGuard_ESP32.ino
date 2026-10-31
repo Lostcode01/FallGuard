@@ -25,7 +25,19 @@ bool freefall=false,buzzerOn=false,buttonHeld=false,longDone=false;
 int previousRead=HIGH,stableRead=HIGH,beepCount=0;
 
 const char* modeName(){return mode==FALL_ALARM?"FALL_ALARM":mode==SOS_ACTIVE?"SOS_ACTIVE":"NORMAL";}
-void sendJSON(const String &s){Serial.println(s);if(bleConnected&&txChar){txChar->setValue(s.c_str());txChar->notify();}}
+void sendJSON(const String &s){
+  Serial.println(s);
+  if(bleConnected&&txChar){
+    String payload=s+"\\n";
+    // Keep notifications below the default ATT payload size.
+    for(unsigned int i=0;i<payload.length();i+=18){
+      String part=payload.substring(i,i+18);
+      txChar->setValue(part.c_str());
+      txChar->notify();
+      delay(1);
+    }
+  }
+}
 void event(const char* name){sendJSON(String("{\"type\":\"event\",\"event\":\"")+name+"\"}");}
 void fallAlarm(){if(mode!=NORMAL)return;mode=FALL_ALARM;fallStart=millis();beepCount=0;lastBuzz=0;event("FALL_ALARM");}
 void cancelMode(){if(mode==NORMAL)return;mode=NORMAL;noTone(BUZZER);event("CANCELLED");}
@@ -40,8 +52,8 @@ class RxCB:public BLECharacteristicCallbacks{
   String s=c->getValue().c_str();s.trim();
   if(s.indexOf("CANCEL")>=0||s.indexOf("RESET")>=0)cancelMode();
   else if(s.indexOf("SOS")>=0)sos();
-  else if(s.indexOf("BUZZER_TEST")>=0){testToneUntil=millis()+350;tone(BUZZER,1200,350);event("BUZZER_TEST");}
-  else if(s.indexOf("MPU_TEST")>=0){event(mpuOK?"MPU_OK":"MPU_ERROR");}
+  else if(s.indexOf("BEEP")>=0){testToneUntil=millis()+350;tone(BUZZER,1200,350);event("BUZZER_TEST");}
+  else if(s.indexOf("MPU")>=0){event(mpuOK?"MPU_OK":"MPU_ERROR");}
  }
 };
 bool regWrite(uint8_t r,uint8_t v){Wire.beginTransmission(MPU);Wire.write(r);Wire.write(v);return Wire.endTransmission()==0;}
