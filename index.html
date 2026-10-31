@@ -27,14 +27,14 @@
       </nav>
       <div class="sidebar-bottom">
         <div class="demo-note"><span class="pulse-dot"></span><div><b>Система FallGuard</b><small>Контроль состояния устройства</small></div></div>
-        <small class="side-version">FALLGUARD · ПРОТОТИП</small>
+        <small class="side-version">FALLGUARD · МОНИТОРИНГ</small>
       </div>
     </aside>
 
     <main class="main">
       <header class="topbar">
         <button class="mobile-menu" id="menuBtn" aria-label="Open menu">☰</button>
-        <div><div class="eyebrow">FALLGUARD / <span id="crumb">OVERVIEW</span></div><h1 id="pageTitle">Dashboard</h1></div>
+        <div><div class="eyebrow">FALLGUARD / <span id="crumb">ОБЗОР</span></div><h1 id="pageTitle">Главная</h1></div>
         <div class="top-actions"><div class="avatar" id="avatar">U</div></div>
       </header>
 
@@ -73,7 +73,7 @@
               <div class="button-row"><button class="btn btn-outline" id="cancelAlarm" disabled>Отменить тревогу</button></div>
               <div class="countdown" id="countdown" hidden>До активации SOS: <b id="countdownValue">15</b> сек.</div>
             </div>
-            <div class="panel-foot"><span class="legend-dot green-dot"></span> Normal <span class="legend-dot red-dot"></span> Тревога падения <span class="legend-dot amber-dot"></span> Countdown</div>
+            <div class="panel-foot"><span class="legend-dot green-dot"></span> Normal <span class="legend-dot red-dot"></span> Тревога падения <span class="legend-dot amber-dot"></span> Обратный отсчёт</div>
           </article>
 
           <article class="panel">
@@ -117,7 +117,7 @@
       </section>
 
       <section class="page" id="page-contacts">
-        <div class="section-intro"><h2>Emergency contacts</h2><p>Укажите номер человека, который должен получить уведомление. Не используйте номер экстренной службы для проверки.</p></div>
+        <div class="section-intro"><h2>Контакты для связи</h2><p>Укажите номер человека, который должен получить уведомление. Не используйте номер экстренной службы для проверки.</p></div>
         <article class="panel form-panel">
           <div class="form-heading"><div class="section-icon">☎</div><div><h3>Основной контакт</h3><p>Контакт для уведомлений при активации SOS.</p></div></div>
           <form id="contactForm" class="form-grid">
@@ -133,13 +133,13 @@
       <section class="page" id="page-location">
         <div class="section-intro split-intro"><div><h2>Геолокация</h2><p>Получите координаты с телефона или компьютера.</p></div><button class="btn btn-primary" id="getLocation">⌖ Определить местоположение</button></div>
         <div class="location-grid">
-          <article class="panel map-panel"><div id="fullMap" class="full-map"><div class="map-placeholder"><span>⌖</span><b>Ожидание координат</b><small>Press “Определить местоположение” and allow browser permission.</small></div></div></article>
+          <article class="panel map-panel"><div id="fullMap" class="full-map"><div class="map-placeholder"><span>⌖</span><b>Ожидание координат</b><small>Нажмите «Определить местоположение» и разрешите доступ к геолокации.</small></div></div></article>
           <article class="panel location-details"><h3>Данные геолокации</h3><div class="detail-row"><span>Статус GPS</span><b id="locationStatus">Не получена</b></div><div class="detail-row"><span>Широта</span><b id="latitude">—</b></div><div class="detail-row"><span>Долгота</span><b id="longitude">—</b></div><div class="detail-row"><span>Точность</span><b id="accuracy">—</b></div><div class="detail-row"><span>Последнее обновление</span><b id="locationTime">—</b></div><button class="btn btn-outline btn-wide" id="openMapLink" disabled>Открыть в Google Maps ↗</button><p class="muted small">Для геолокации требуется разрешение браузера и защищённое соединение HTTPS. Координаты сохраняются в этом браузере.</p></article>
         </div>
       </section>
 
       <section class="page" id="page-events">
-        <div class="section-intro split-intro"><div><h2>Event history</h2><p>История обнаруженных падений, отмен тревоги и активаций SOS.</p></div><button class="btn btn-outline" id="clearEvents">Очистить историю</button></div>
+        <div class="section-intro split-intro"><div><h2>История событий</h2><p>История обнаруженных падений, отмен тревоги и активаций SOS.</p></div><button class="btn btn-outline" id="clearEvents">Очистить историю</button></div>
         <article class="panel"><div class="table-wrap"><table><thead><tr><th>СОБЫТИЕ</th><th>ОПИСАНИЕ</th><th>ДАТА И ВРЕМЯ</th><th>СТАТУС</th></tr></thead><tbody id="eventTable"><tr><td colspan="4" class="empty-cell">Событий пока нет.</td></tr></tbody></table></div></article>
       </section>
 
