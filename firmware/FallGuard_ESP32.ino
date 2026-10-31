@@ -20,7 +20,7 @@ BLECharacteristic *txChar=nullptr;
 bool bleConnected=false,mpuOK=false;
 enum Mode{NORMAL,FALL_ALARM,SOS_ACTIVE}; Mode mode=NORMAL;
 float ax=0,ay=0,az=1,gx=0,gy=0,gz=0,totalG=1;
-unsigned long lastRead=0,lastSend=0,fallStart=0,freefallTime=0,lastBuzz=0,lastDebounce=0,pressedAt=0;
+unsigned long lastRead=0,lastSend=0,fallStart=0,freefallTime=0,lastBuzz=0,lastDebounce=0,pressedAt=0,testToneUntil=0;
 bool freefall=false,buzzerOn=false,buttonHeld=false,longDone=false;
 int previousRead=HIGH,stableRead=HIGH,beepCount=0;
 
@@ -40,7 +40,7 @@ class RxCB:public BLECharacteristicCallbacks{
   String s=c->getValue().c_str();s.trim();
   if(s.indexOf("CANCEL")>=0||s.indexOf("RESET")>=0)cancelMode();
   else if(s.indexOf("SOS")>=0)sos();
-  else if(s.indexOf("BUZZER_TEST")>=0){tone(BUZZER,1200,350);event("BUZZER_TEST");}
+  else if(s.indexOf("BUZZER_TEST")>=0){testToneUntil=millis()+350;tone(BUZZER,1200,350);event("BUZZER_TEST");}
   else if(s.indexOf("MPU_TEST")>=0){event(mpuOK?"MPU_OK":"MPU_ERROR");}
  }
 };
@@ -72,7 +72,7 @@ void buttonTask(){
  if(buttonHeld&&!longDone&&millis()-pressedAt>=3000){longDone=true;sos();}
 }
 void buzzerTask(){
- if(mode==NORMAL){noTone(BUZZER);buzzerOn=false;return;}
+ if(mode==NORMAL){if(millis()<testToneUntil)return;noTone(BUZZER);buzzerOn=false;return;}
  unsigned long t=millis(),interval=mode==FALL_ALARM?250:160;if(t-lastBuzz<interval)return;lastBuzz=t;
  if(buzzerOn){noTone(BUZZER);buzzerOn=false;}
  else{tone(BUZZER,mode==FALL_ALARM?(beepCount%2?760:1100):(beepCount%3?900:1300));buzzerOn=true;beepCount++;}
