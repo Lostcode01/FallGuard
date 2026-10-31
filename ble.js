@@ -7,10 +7,10 @@
   function status(label, help){$("bleState").textContent=label;$("bleHelp").textContent=help;}
   function disconnect(message){
     connected=false;device=null;tx=null;rx=null;
-    $("deviceConnectBtn").textContent="Connect ESP32";
-    $("deviceStatus").textContent="Not connected";
-    $("bleDeviceName").textContent="No device connected";
-    status("NOT CONNECTED",message||"Connect the ESP32 when it is powered on and nearby.");
+    $("deviceConnectBtn").textContent="Подключить ESP32";\n    if($("hardwareBuzzerTest"))$("hardwareBuzzerTest").disabled=true;\n    if($("hardwareMpuTest"))$("hardwareMpuTest").disabled=true;
+    $("deviceStatus").textContent="Не подключено";
+    $("bleDeviceName").textContent="Устройство не подключено";
+    status("НЕ ПОДКЛЮЧЕНО",message||"Включите ESP32 и расположите его рядом.");
   }
   function stateChange(s){
     if(!s||s===lastState)return;lastState=s;
@@ -25,7 +25,7 @@
   function packet(p){
     if(p.type==="status"){
       $("bleAccel").textContent=[p.ax,p.ay,p.az].map(v=>Number(v).toFixed(2)).join(" / ")+" g";
-      $("bleMagnitude").textContent=Number(p.g||0).toFixed(2)+" g";
+      $("bleMagnitude").textContent=Number(p.g||0).toFixed(2)+" g";\n      $("bleButtonState").textContent=p.button?"Нажата":"Не нажата";\n      if(p.mpu===false){$("bleAccel").textContent="Нет данных";$("bleMagnitude").textContent="—";$("bleDeviceState").textContent="MPU6050 не найден";}
       stateChange(p.state);
       $("deviceLastSeen").textContent="Last data: "+new Date().toLocaleTimeString();
     } else if(p.type==="event"){
@@ -40,30 +40,30 @@
   }
   async function connect(){
     if(!window.isSecureContext){showToast("Bluetooth needs the local HTTPS address.");return;}
-    if(!navigator.bluetooth){status("NOT SUPPORTED","Use Chrome/Edge on Windows or Chrome on Android.");showToast("This browser does not support Web Bluetooth.");return;}
+    if(!navigator.bluetooth){status("НЕ ПОДДЕРЖИВАЕТСЯ","Используйте Chrome или Edge на Windows либо Chrome на Android.");showToast("Этот браузер не поддерживает Bluetooth.");return;}
     try{
-      $("deviceConnectBtn").disabled=true;status("SEARCHING","Select FallGuard-ESP32 in the Bluetooth picker.");
+      $("deviceConnectBtn").disabled=true;status("ПОИСК","Выберите FallGuard-ESP32 в списке Bluetooth.");
       device=await navigator.bluetooth.requestDevice({filters:[{namePrefix:"FallGuard"}],optionalServices:[SERVICE]});
       device.addEventListener("gattserverdisconnected",()=>disconnect("Bluetooth disconnected. You can reconnect."));
       const server=await device.gatt.connect();
       const service=await server.getPrimaryService(SERVICE);
       tx=await service.getCharacteristic(TX);rx=await service.getCharacteristic(RX);
       await tx.startNotifications();tx.addEventListener("characteristicvaluechanged",notify);
-      connected=true;$("deviceConnectBtn").textContent="Disconnect";
+      connected=true;$("deviceConnectBtn").textContent="Отключить";
       $("deviceStatus").textContent="Connected";$("bleDeviceName").textContent=device.name||"FallGuard ESP32";
       $("deviceStatus").nextElementSibling.innerHTML='<i class="mini-dot green"></i> ESP32 connected by BLE';
-      status("CONNECTED","Live MPU6050 data is being received.");showToast("ESP32 connected.");
+      status("ПОДКЛЮЧЕНО","Получаем данные MPU6050 в реальном времени.");showToast("ESP32 подключён.");
     }catch(e){console.error(e);if(device&&device.gatt&&device.gatt.connected)device.gatt.disconnect();disconnect(e.message||"Connection failed.");if(e.name!=="NotFoundError")showToast("Bluetooth error: "+(e.message||e.name));}
-    finally{$("deviceConnectBtn").disabled=false;}
+    finally{$("deviceConnectBtn").disabled=false;\n      $("hardwareBuzzerTest").disabled=!connected;\n      $("hardwareMpuTest").disabled=!connected;}
   }
   async function command(cmd){
     if(!connected||!rx)return;
     try{const bytes=new TextEncoder().encode(JSON.stringify({cmd})+"\n");await rx.writeValueWithResponse(bytes);}
     catch(e){console.error(e);showToast("Could not send command to ESP32.");}
   }
-  $("deviceConnectBtn").addEventListener("click",()=>{if(connected&&device&&device.gatt.connected){device.gatt.disconnect();disconnect("Disconnected by user.");}else connect();});
+  window.fallguardSendCommand=command;\n  $("hardwareBuzzerTest").addEventListener("click",()=>command("BUZZER_TEST"));\n  $("hardwareMpuTest").addEventListener("click",()=>command("MPU_TEST"));\n  $("deviceConnectBtn").addEventListener("click",()=>{if(connected&&device&&device.gatt.connected){device.gatt.disconnect();disconnect("Отключено пользователем.");$("hardwareBuzzerTest").disabled=true;$("hardwareMpuTest").disabled=true;}else connect();});
   $("cancelAlarm").addEventListener("click",()=>command("CANCEL"));
   $("sosButton").addEventListener("click",()=>command("SOS"));
   window.addEventListener("beforeunload",()=>{if(device&&device.gatt&&device.gatt.connected)device.gatt.disconnect();});
-  if(!navigator.bluetooth)status("NOT SUPPORTED","Open this page in Chrome/Edge on Windows or Chrome on Android.");
+  if(!navigator.bluetooth)status("НЕ ПОДДЕРЖИВАЕТСЯ","Откройте сайт в Chrome или Edge на Windows либо Chrome на Android.");
 })();
