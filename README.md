@@ -1,77 +1,88 @@
-# FallGuard — local prototype
+# FallGuard — локальная система мониторинга
 
-Responsive dashboard and ESP32 Bluetooth integration for the FallGuard fall-detection prototype.
+Веб-интерфейс для прототипа обнаружения падений на ESP32 и MPU6050. Сайт запускается на компьютере и открывается на телефоне через одну локальную Wi-Fi сеть.
 
-## Included
+## Возможности
 
-- Dashboard, user profile, demonstration contact, browser GPS map and event history.
-- Local HTTPS server for a Windows PC and Android phone on the same Wi-Fi.
-- Web Bluetooth connection to the ESP32 DevKit V1.
-- Live MPU6050 acceleration values and device state.
-- Website buttons to cancel a fall alarm or start a demonstration SOS.
-- Physical button: short press cancels an active alarm; hold for 3 seconds to activate SOS.
-- ESP32 buzzer alert; a fall alarm escalates to the SOS demonstration state after 15 seconds.
+- Подключение ESP32 по Bluetooth Low Energy.
+- Просмотр данных акселерометра MPU6050 в реальном времени.
+- Проверка ответа MPU6050.
+- Проверка физического зуммера с сайта.
+- Отображение нажатия физической кнопки.
+- Получение события падения от прошивки ESP32.
+- Отмена тревоги физической кнопкой или через сайт.
+- Активация SOS удержанием физической кнопки 3 секунды.
+- Профиль пользователя, контакт для связи, геолокация и история событий.
 
-## Requirements
+## Требования
 
-- Windows 10/11 and Node.js available in PowerShell.
-- Chrome or Edge on Windows; Chrome on Android.
-- ESP32 DevKit V1 and MPU6050.
-- PC and phone on the same Wi-Fi network.
+- Windows 10/11, Node.js и PowerShell.
+- Chrome или Edge на Windows; Chrome на Android.
+- ESP32 DevKit V1 и MPU6050.
+- Компьютер и телефон в одной Wi-Fi сети.
 
-## First-time HTTPS setup
+## Первый запуск локального HTTPS
 
-1. Open this folder in VS Code.
-2. Open PowerShell in the project folder.
-3. Run:
+1. Откройте папку проекта в VS Code.
+2. Откройте PowerShell в этой папке.
+3. Выполните:
 
    ```powershell
    Set-ExecutionPolicy -Scope Process Bypass
    .\setup-local.ps1
    ```
 
-4. The script installs mkcert using winget if necessary, creates a local HTTPS certificate and starts the server.
-5. On the PC, open `https://localhost:8443`.
-6. Copy `rootCA.crt` from this folder to your Android phone.
-7. Install that certificate on Android as a CA certificate. The menu is usually **Settings → Security → Encryption & credentials → Install a certificate → CA certificate**; wording varies by Android version.
-8. Open the phone URL printed by the script, such as `https://192.168.1.20:8443`.
+4. Скрипт установит mkcert через winget (если он ещё не установлен), создаст локальный сертификат и запустит сервер.
+5. На компьютере откройте `https://localhost:8443`.
+6. Скопируйте файл `rootCA.crt` из папки проекта на Android.
+7. Установите его как сертификат CA. Обычно: **Настройки → Безопасность → Шифрование и учётные данные → Установить сертификат → Сертификат CA**. Названия пунктов зависят от версии Android.
+8. Откройте на телефоне адрес, который напечатал скрипт, например `https://192.168.1.20:8443`.
 
-Only install the CA certificate that you generated on your own PC. Do not share the private key in `certs/`.
+Устанавливайте только сертификат, созданный на вашем компьютере. Не передавайте файлы закрытого ключа из папки `certs`.
 
-## Starting it later
+## Последующие запуски
 
-In PowerShell, from this folder:
+Откройте PowerShell в папке проекта и выполните:
 
 ```powershell
 npm start
 ```
 
-Keep the window open while using the website. Press Ctrl+C to stop the server. If Windows Firewall asks, allow Node.js on your **Private network**. If the PC's local IP changes, run `.\setup-local.ps1` again.
+Не закрывайте окно PowerShell, пока используете сайт. Для остановки сервера нажмите Ctrl+C. Если Windows Firewall спросит разрешение, разрешите Node.js только для частных сетей. Если локальный IP компьютера изменился, снова выполните `.\setup-local.ps1`.
 
-## ESP32 firmware
+## Подключение оборудования
 
-Open `firmware/FallGuard_ESP32.ino` in Arduino IDE. Select your ESP32 DevKit V1 board and upload the sketch. It uses the ESP32 Arduino core BLE library and built-in Wire library; no separate MPU6050 library is needed.
+Откройте `firmware/FallGuard_ESP32.ino` в Arduino IDE, выберите плату ESP32 DevKit V1 и загрузите прошивку. Отдельная библиотека MPU6050 не требуется; используется Wire и BLE из ESP32 Arduino Core.
 
-| Component | ESP32 pin |
+| Компонент | Контакт ESP32 |
 |---|---|
 | MPU6050 SDA | GPIO 22 |
 | MPU6050 SCL | GPIO 21 |
-| Buzzer signal | GPIO 14 |
-| Pushbutton | GPIO 4 and GND |
+| Сигнал зуммера | GPIO 14 |
+| Кнопка | GPIO 4 и GND |
 | MPU6050 GND | GND |
 | MPU6050 VCC | 3.3V |
 
-The firmware advertises as `FallGuard-ESP32`. Click **Connect ESP32** in the dashboard and select it. A BLE peripheral generally has one active browser connection in this setup: disconnect on the PC before connecting from the phone.
+После загрузки включите устройство. На главной странице нажмите **Подключить ESP32** и выберите `FallGuard-ESP32`.
 
-## Browser compatibility
+### Проверка компонентов
 
-Use Chrome or Edge on Windows, and Chrome on Android. Web Bluetooth requires HTTPS and a user gesture to start pairing. Firefox and Safari are not supported by this Bluetooth workflow.
+1. **MPU6050:** подключите ESP32. На главной странице должны обновляться три значения ускорения и общий модуль в g. Нажмите «Проверить MPU6050» — сайт должен получить ответ датчика.
+2. **Зуммер:** нажмите «Проверить зуммер». ESP32 должен подать короткий звуковой сигнал.
+3. **Кнопка:** нажмите физическую кнопку. Состояние «Нажата / Не нажата» должно измениться на сайте.
+4. **Тревога:** падение определяется прошивкой по показаниям MPU6050. При обнаружении включается зуммер и запускается 15-секундное ожидание. Короткое нажатие физической кнопки отменяет тревогу. Удержание кнопки 3 секунды активирует SOS.
 
-## Limitations and safety
+Пороговые значения обнаружения падения пока предварительные. Проверяйте их осторожно и настраивайте по реальным записям данных датчика.
 
-- This is a prototype demonstration, not a certified medical or emergency system.
-- The fall-detection thresholds are initial test values, not clinically validated. Test carefully and tune them using recorded sensor data.
-- SOS is a demonstration only. No emergency services are contacted automatically. Use only non-emergency test phone numbers.
-- Profile, event history and GPS data are stored in that browser's local storage; they do not synchronize between PC and phone.
-- The PC must remain powered on with the local server running for the phone to open the site.
-- The map uses OpenStreetMap tiles and Leaflet from public internet resources; the dashboard server itself is local.
+## Поддерживаемые браузеры
+
+Chrome или Edge на Windows и Chrome на Android. Для Web Bluetooth требуется HTTPS и нажатие кнопки подключения в браузере. Firefox и Safari для этого Bluetooth-сценария не подходят.
+
+## Ограничения
+
+- Это исследовательский прототип, а не сертифицированное медицинское устройство.
+- Событие SOS отображается в системе; автоматический вызов экстренных служб не выполняется.
+- Используйте только тестовые номера, не номера экстренных служб.
+- Профиль, история и координаты хранятся отдельно в каждом браузере и не синхронизируются между телефоном и компьютером.
+- Компьютер должен быть включён, а локальный сервер — запущен, чтобы телефон мог открыть сайт.
+- Карта использует Leaflet и тайлы OpenStreetMap из интернета. Сам сайт и Bluetooth-соединение работают через локальную сеть.
