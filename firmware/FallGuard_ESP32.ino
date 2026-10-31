@@ -40,6 +40,8 @@ class RxCB:public BLECharacteristicCallbacks{
   String s=c->getValue().c_str();s.trim();
   if(s.indexOf("CANCEL")>=0||s.indexOf("RESET")>=0)cancelMode();
   else if(s.indexOf("SOS")>=0)sos();
+  else if(s.indexOf("BUZZER_TEST")>=0){tone(BUZZER,1200,350);event("BUZZER_TEST");}
+  else if(s.indexOf("MPU_TEST")>=0){event(mpuOK?"MPU_OK":"MPU_ERROR");}
  }
 };
 bool regWrite(uint8_t r,uint8_t v){Wire.beginTransmission(MPU);Wire.write(r);Wire.write(v);return Wire.endTransmission()==0;}
@@ -93,6 +95,6 @@ void loop(){
  if(mpuOK&&t-lastRead>=40){lastRead=t;if(readMPU())detectFall();}
  buttonTask();buzzerTask();
  if(mode==FALL_ALARM&&t-fallStart>=15000)sos();
- if(t-lastSend>=250){lastSend=t;char out[240];snprintf(out,sizeof(out),"{\"type\":\"status\",\"state\":\"%s\",\"ax\":%.3f,\"ay\":%.3f,\"az\":%.3f,\"gx\":%.1f,\"gy\":%.1f,\"gz\":%.1f,\"g\":%.3f}",modeName(),mpuOK?"true":"false",stableRead==LOW?"true":"false",ax,ay,az,gx,gy,gz,totalG);sendJSON(out);}
+ if(t-lastSend>=250){lastSend=t;char out[260];snprintf(out,sizeof(out),"{\"type\":\"status\",\"state\":\"%s\",\"mpu\":%s,\"button\":%s,\"ax\":%.3f,\"ay\":%.3f,\"az\":%.3f,\"gx\":%.1f,\"gy\":%.1f,\"gz\":%.1f,\"g\":%.3f}",modeName(),mpuOK?"true":"false",stableRead==LOW?"true":"false",ax,ay,az,gx,gy,gz,totalG);sendJSON(out);}
  delay(2);
 }
