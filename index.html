@@ -117,7 +117,7 @@
       </section>
 
       <section class="page" id="page-contacts">
-        <div class="section-intro"><h2>Emergency contacts</h2><p>Use a test number only. This prototype is for demonstration and must not be used for real emergency response.</p></div>
+        <div class="section-intro"><h2>Emergency contacts</h2><p>Укажите номер человека, который должен получить уведомление. Не используйте номер экстренной службы для проверки.</p></div>
         <article class="panel form-panel">
           <div class="form-heading"><div class="section-icon">☎</div><div><h3>Основной контакт</h3><p>Контакт для уведомлений при активации SOS.</p></div></div>
           <form id="contactForm" class="form-grid">
@@ -144,17 +144,14 @@
       </section>
 
       <section class="page" id="page-sounds">
-        <div class="section-intro"><h2>Проверка устройств</h2><p>Проверка зуммера ESP32 и состояния аппаратной кнопки.</p></div>
+        <div class="section-intro"><h2>Проверка оборудования</h2><p>Проверяйте компоненты непосредственно через подключённый ESP32.</p></div>
         <div class="sound-grid">
-          <article class="panel sound-card"><div class="sound-icon green-bg">✓</div><h3>Норма</h3><p>Короткий звуковой сигнал.</p><button class="btn btn-outline sound-test" data-sound="normal">▶ Проверить зуммер</button></article>
-          <article class="panel sound-card"><div class="sound-icon amber-bg">!</div><h3>Предупреждение</h3><p>Проверка звукового сигнала.</p><button class="btn btn-outline sound-test" data-sound="warning">▶ Проверить зуммер</button></article>
-          <article class="panel sound-card"><div class="sound-icon red-bg">✕</div><h3>Тревога падения</h3><p>Сигнал тревоги.</p><button class="btn btn-outline sound-test" data-sound="fall">▶ Проверить зуммер</button></article>
-          <article class="panel sound-card"><div class="sound-icon violet-bg">⌁</div><h3>Сигнал SOS</h3><p>Сигнал SOS.</p><button class="btn btn-outline sound-test" data-sound="sos">▶ Проверить зуммер</button></article>
+          <article class="panel sound-card"><div class="sound-icon green-bg">↗</div><h3>MPU6050</h3><p>Проверьте ответ датчика и наблюдайте значения ускорения на главной странице.</p><button class="btn btn-outline" data-goto="dashboard">Открыть показания</button></article>
+          <article class="panel sound-card"><div class="sound-icon amber-bg">♫</div><h3>Зуммер</h3><p>Отправьте команду на ESP32 и проверьте физический звуковой сигнал.</p><button class="btn btn-outline" data-goto="dashboard">Перейти к проверке</button></article>
+          <article class="panel sound-card"><div class="sound-icon violet-bg">●</div><h3>Кнопка устройства</h3><p>Нажмите физическую кнопку. Её состояние отображается на главной странице.</p><button class="btn btn-outline" data-goto="dashboard">Проверить кнопку</button></article>
         </div>
-        <div class="info-box"><b>Проверка оборудования</b><span>Tomorrow, these sound patterns can be translated into ESP32 buzzer commands. Browser sound previews are only for today's website demonstration.</span></div>
-      </section>
-
-      <footer class="footer"><span>FALLGUARD · СИСТЕМА МОНИТОРИНГА</span><span>Прототип не заменяет медицинскую помощь и официальные экстренные службы.</span></footer>
+        <div class="info-box"><b>Как проверить</b><span>Сначала подключите ESP32 по Bluetooth. Затем используйте кнопки «Проверить зуммер» и «Проверить MPU6050» в панели подключения. Нажмите физическую кнопку и проверьте её состояние. Показания датчика обновляются автоматически.</span></div>
+      </section>      <footer class="footer"><span>FALLGUARD · СИСТЕМА МОНИТОРИНГА</span><span>Прототип не заменяет медицинскую помощь и официальные экстренные службы.</span></footer>
     </main>
   </div>
 
