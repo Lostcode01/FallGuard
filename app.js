@@ -26,8 +26,8 @@ function logEvent(type, description, status="Записано"){
   data.events.unshift({type,description,time:new Date().toISOString(),status});
   data.events=data.events.slice(0,100); saveData(); renderEvents();
 }
-function eventTone(type){ return /SOS|Fall|Alarm/i.test(type) ? "danger" : /Warning|Countdown/i.test(type) ? "warn" : "ok"; }
-function eventIcon(type){ return /SOS/i.test(type)?"!":/Fall|Alarm/i.test(type)?"⚠":"✓"; }
+function eventTone(type){ return /SOS|пад|тревог|авар/i.test(type) ? "danger" : /вниман|ожидан/i.test(type) ? "warn" : "ok"; }
+function eventIcon(type){ return /SOS/i.test(type)?"!":/пад|тревог|авар/i.test(type)?"⚠":"✓"; }
 function renderEvents(){
   const recent=$("recentEvents"), rows=data.events.slice(0,4);
   recent.innerHTML=rows.length?rows.map(e=>`<div class="activity-item"><div class="activity-icon ${eventTone(e.type)}">${eventIcon(e.type)}</div><div><b>${escapeHtml(e.type)}</b><small>${escapeHtml(e.description)}</small></div><span class="activity-time">${new Date(e.time).toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"})}</span></div>`).join(""):'<div class="empty-state">Событий пока нет.</div>';
@@ -62,7 +62,7 @@ function setStatus(kind, heading, description, tag){
   const banner=$("statusBanner"); banner.className="status-banner "+kind;
   $("statusHeading").textContent=heading; $("statusDescription").textContent=description; $("statusTag").textContent=tag;
   $("monitorRing").className="monitor-ring"+(kind==="alert"?" alert-ring":kind==="warning"?" warning-ring":"");
-  $("monitorBig").textContent=kind==="alert"?"ALARM":kind==="warning"?"WARNING":"READY";
+  $("monitorBig").textContent=kind==="alert"?"ТРЕВОГА":kind==="warning"?"ВНИМАНИЕ":"ГОТОВ";
   $("monitorSub").textContent=kind==="alert"?"Требуется проверка":kind==="warning"?"Ожидание помощи":"Тревога не активна";
 }
 function startFall(){
