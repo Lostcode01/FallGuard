@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101827">
+  <title>FallGuard | Fall Detection & Emergency Assistance</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#" aria-label="FallGuard home">
+        <span class="brand-mark">✚</span>
+        <span><strong>FallGuard</strong><small>PERSONAL SAFETY SYSTEM</small></span>
+      </a>
+      <div class="side-label">WORKSPACE</div>
+      <nav class="nav">
+        <button class="nav-item active" data-page="dashboard"><span>▦</span> Dashboard</button>
+        <button class="nav-item" data-page="profile"><span>♙</span> User profile</button>
+        <button class="nav-item" data-page="contacts"><span>☎</span> Emergency contacts</button>
+        <button class="nav-item" data-page="location"><span>⌖</span> Live location</button>
+        <button class="nav-item" data-page="events"><span>◷</span> Event history</button>
+        <button class="nav-item" data-page="sounds"><span>♫</span> Sound center</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="demo-note"><span class="pulse-dot"></span><div><b>Demonstration mode</b><small>Hardware not connected</small></div></div>
+        <small class="side-version">FALLGUARD WEB · VERSION 1.0</small>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="mobile-menu" id="menuBtn" aria-label="Open menu">☰</button>
+        <div><div class="eyebrow">PERSONAL SAFETY / <span id="crumb">OVERVIEW</span></div><h1 id="pageTitle">Dashboard</h1></div>
+        <div class="top-actions"><span class="demo-pill"><i></i> DEMO MODE</span><div class="avatar" id="avatar">U</div></div>
+      </header>
+
+      <section class="page active" id="page-dashboard">
+        <div class="welcome-row">
+          <div><h2>Good day, <span id="welcomeName">User</span></h2><p>Here is the current status of your FallGuard system.</p></div>
+          <div class="date-chip" id="todayDate"></div>
+        </div>
+
+        <div class="status-banner" id="statusBanner">
+          <div class="status-icon">✓</div>
+          <div class="status-copy"><b id="statusHeading">System operating normally</b><span id="statusDescription">No fall events detected. Monitoring is ready.</span></div>
+          <span class="status-tag" id="statusTag">NORMAL</span>
+        </div>
+
+        <div class="stats-grid">
+          <article class="stat-card"><div class="stat-top"><span>DEVICE CONNECTION</span><span class="stat-symbol blue">⌁</span></div><strong id="deviceStatus">Demo mode</strong><small><i class="mini-dot amber"></i> ESP32 not connected</small></article>
+          <article class="stat-card"><div class="stat-top"><span>MONITORING</span><span class="stat-symbol green">◎</span></div><strong id="monitorStatus">Standby</strong><small><i class="mini-dot green"></i> Simulation ready</small></article>
+          <article class="stat-card"><div class="stat-top"><span>GPS LOCATION</span><span class="stat-symbol violet">⌖</span></div><strong id="gpsStatus">Not acquired</strong><small id="gpsSmall">Waiting for permission</small></article>
+          <article class="stat-card"><div class="stat-top"><span>RECORDED EVENTS</span><span class="stat-symbol orange">◷</span></div><strong id="eventCount">0</strong><small>Saved in this browser</small></article>
+        </div>
+
+        <div class="dashboard-grid">
+          <article class="panel">
+            <div class="panel-head"><div><h3>Fall monitoring</h3><p>Demonstrate the fall alarm workflow</p></div><span class="soft-label">SIMULATION</span></div>
+            <div class="monitor-center">
+              <div class="monitor-ring" id="monitorRing"><div><span>●</span><b id="monitorBig">READY</b><small id="monitorSub">No active alarm</small></div></div>
+              <p id="monitorMessage">Start a test to simulate a fall detection event.</p>
+              <div class="button-row"><button class="btn btn-danger" id="simulateFall">Simulate fall</button><button class="btn btn-outline" id="cancelAlarm" disabled>Cancel alarm</button></div>
+              <div class="countdown" id="countdown" hidden>Alarm escalation in <b id="countdownValue">15</b> seconds</div>
+            </div>
+            <div class="panel-foot"><span class="legend-dot green-dot"></span> Normal <span class="legend-dot red-dot"></span> Fall alarm <span class="legend-dot amber-dot"></span> Countdown</div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-head"><div><h3>Emergency assistance</h3><p>Manual SOS demonstration</p></div><span class="soft-label red-soft">SOS</span></div>
+            <div class="sos-content">
+              <div class="sos-emblem">!</div>
+              <h2>Need assistance?</h2>
+              <p>Start a demonstration SOS sequence using the saved emergency contact.</p>
+              <button class="btn btn-danger btn-wide" id="sosButton">Activate SOS demonstration</button>
+              <small class="muted">No call is placed automatically. You must confirm any dialer action.</small>
+            </div>
+            <div class="contact-preview"><div class="contact-avatar">EC</div><div><b id="contactPreviewName">No contact configured</b><small id="contactPreviewPhone">Add an emergency contact in settings</small></div><button class="icon-btn" data-goto="contacts" aria-label="Edit contact">↗</button></div>
+          </article>
+        </div>
+
+        <div class="lower-grid">
+          <article class="panel">
+            <div class="panel-head"><div><h3>Last known location</h3><p>Location from this phone's browser</p></div><button class="text-btn" data-goto="location">Open map ↗</button></div>
+            <div class="mini-map" id="miniMap"><div class="map-placeholder"><span>⌖</span><b>Location not available</b><small>Allow location access to display your position.</small><button class="btn btn-outline btn-small" id="getLocationMini">Get my location</button></div></div>
+            <div class="coordinates" id="miniCoordinates">Latitude: — &nbsp; Longitude: —</div>
+          </article>
+          <article class="panel">
+            <div class="panel-head"><div><h3>Recent activity</h3><p>Latest system events</p></div><button class="text-btn" data-goto="events">View all ↗</button></div>
+            <div class="activity-list" id="recentEvents"><div class="empty-state">No events recorded yet.</div></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="page" id="page-profile">
+        <div class="section-intro"><h2>User information</h2><p>Details displayed during a fall or SOS demonstration.</p></div>
+        <article class="panel form-panel">
+          <div class="form-heading"><div class="section-icon">♙</div><div><h3>Personal profile</h3><p>Information is saved locally in this browser.</p></div></div>
+          <form id="profileForm" class="form-grid">
+            <label class="field full">Full name<input id="fullName" placeholder="Enter user's full name" maxlength="80"></label>
+            <label class="field">Age<input id="age" type="number" min="1" max="120" placeholder="Age"></label>
+            <label class="field">Device ID<input id="deviceId" value="FG-ESP32-001" maxlength="40"></label>
+            <label class="field full">Additional information<textarea id="medicalInfo" rows="4" placeholder="Optional information for the demonstration"></textarea></label>
+            <div class="form-actions full"><button class="btn btn-primary" type="submit">Save profile</button><span class="form-feedback" id="profileFeedback"></span></div>
+          </form>
+        </article>
+      </section>
+
+      <section class="page" id="page-contacts">
+        <div class="section-intro"><h2>Emergency contacts</h2><p>Use a test number only. This prototype is for demonstration and must not be used for real emergency response.</p></div>
+        <article class="panel form-panel">
+          <div class="form-heading"><div class="section-icon">☎</div><div><h3>Primary emergency contact</h3><p>Shown when the SOS sequence is activated.</p></div></div>
+          <form id="contactForm" class="form-grid">
+            <label class="field full">Contact name<input id="contactName" placeholder="For example: Demonstration contact" maxlength="80"></label>
+            <label class="field full">Demonstration phone number<input id="contactPhone" type="tel" placeholder="+1 555 010 1234" maxlength="30"></label>
+            <label class="field full">Relationship<input id="contactRelation" placeholder="For example: Family member / Caretaker" maxlength="60"></label>
+            <div class="warning-box full"><b>Demonstration safety notice</b><span>Enter only a non-emergency test number. The website will never automatically place a call. Opening the dialer requires a separate user action.</span></div>
+            <div class="form-actions full"><button class="btn btn-primary" type="submit">Save emergency contact</button><span class="form-feedback" id="contactFeedback"></span></div>
+          </form>
+        </article>
+      </section>
+
+      <section class="page" id="page-location">
+        <div class="section-intro split-intro"><div><h2>Live location</h2><p>Request GPS coordinates from the Android phone or computer browser.</p></div><button class="btn btn-primary" id="getLocation">⌖ Get my location</button></div>
+        <div class="location-grid">
+          <article class="panel map-panel"><div id="fullMap" class="full-map"><div class="map-placeholder"><span>⌖</span><b>Waiting for location</b><small>Press “Get my location” and allow browser permission.</small></div></div></article>
+          <article class="panel location-details"><h3>Location details</h3><div class="detail-row"><span>GPS status</span><b id="locationStatus">Not acquired</b></div><div class="detail-row"><span>Latitude</span><b id="latitude">—</b></div><div class="detail-row"><span>Longitude</span><b id="longitude">—</b></div><div class="detail-row"><span>Accuracy</span><b id="accuracy">—</b></div><div class="detail-row"><span>Last update</span><b id="locationTime">—</b></div><button class="btn btn-outline btn-wide" id="openMapLink" disabled>Open in Google Maps ↗</button><p class="muted small">Location access requires permission and a secure connection (HTTPS or localhost). Coordinates are saved only in this browser.</p></article>
+        </div>
+      </section>
+
+      <section class="page" id="page-events">
+        <div class="section-intro split-intro"><div><h2>Event history</h2><p>Review recorded falls, cancellations and SOS demonstrations.</p></div><button class="btn btn-outline" id="clearEvents">Clear history</button></div>
+        <article class="panel"><div class="table-wrap"><table><thead><tr><th>EVENT</th><th>DESCRIPTION</th><th>DATE & TIME</th><th>STATUS</th></tr></thead><tbody id="eventTable"><tr><td colspan="4" class="empty-cell">No events recorded yet.</td></tr></tbody></table></div></article>
+      </section>
+
+      <section class="page" id="page-sounds">
+        <div class="section-intro"><h2>Sound center</h2><p>Preview notification sounds. These previews play through the current device, not the ESP32 buzzer.</p></div>
+        <div class="sound-grid">
+          <article class="panel sound-card"><div class="sound-icon green-bg">✓</div><h3>Normal / Ready</h3><p>Two quiet confirmation tones.</p><button class="btn btn-outline sound-test" data-sound="normal">▶ Test sound</button></article>
+          <article class="panel sound-card"><div class="sound-icon amber-bg">!</div><h3>Warning</h3><p>Short repeating alert tones.</p><button class="btn btn-outline sound-test" data-sound="warning">▶ Test sound</button></article>
+          <article class="panel sound-card"><div class="sound-icon red-bg">✕</div><h3>Fall alarm</h3><p>Urgent alternating alert tones.</p><button class="btn btn-outline sound-test" data-sound="fall">▶ Test sound</button></article>
+          <article class="panel sound-card"><div class="sound-icon violet-bg">⌁</div><h3>SOS activated</h3><p>Distinct SOS-style demonstration pattern.</p><button class="btn btn-outline sound-test" data-sound="sos">▶ Test sound</button></article>
+        </div>
+        <div class="info-box"><b>Hardware note</b><span>Tomorrow, these sound patterns can be translated into ESP32 buzzer commands. Browser sound previews are only for today's website demonstration.</span></div>
+      </section>
+
+      <footer class="footer"><span>FALLGUARD · PROTOTYPE DEMONSTRATION</span><span>Not a certified medical or emergency system.</span></footer>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+  <div class="modal-backdrop" id="sosModal" hidden>
+    <div class="modal">
+      <div class="modal-alert">!</div><h2>SOS demonstration</h2>
+      <p id="sosSummary">Review the demonstration details before continuing.</p>
+      <div class="modal-contact"><b id="modalContactName">No contact configured</b><span id="modalContactPhone">No test number saved</span></div>
+      <div class="warning-box"><b>Test only</b><span>This is not a real emergency service. Only use a non-emergency demonstration number. No call will be placed unless you choose to open the dialer.</span></div>
+      <div class="modal-actions"><button class="btn btn-outline" id="closeSos">Close</button><button class="btn btn-danger" id="openDialer" disabled>Open phone dialer</button></div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="app.js"></script>
+</body>
+</html>
