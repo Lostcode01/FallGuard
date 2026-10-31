@@ -21,9 +21,17 @@
     $("bleDeviceState").textContent=s.replaceAll("_"," ");
     if(s==="FALL_ALARM"){startFall();showToast("Обнаружено падение.");}
     if(s==="SOS_ACTIVE")activateSOS("ESP32");
-    if(s==="CANCELLED"||s==="NORMAL"){
+    if(s==="CANCELLED"){
       if(!$("countdown").hidden)cancelFall();
-      if(s==="NORMAL"){setStatus("normal","Система работает нормально","ESP32 подключён и передаёт данные датчиков.","НОРМА");$("monitorStatus").textContent="Мониторинг";}
+      else{
+        setStatus("normal","Тревога отменена","Устройство вернулось в режим мониторинга.","ОТМЕНЕНО");
+        $("monitorStatus").textContent="Мониторинг";
+      }
+    }
+    if(s==="NORMAL"){
+      if(!$("countdown").hidden)cancelFall();
+      setStatus("normal","Система работает нормально","ESP32 подключён и передаёт данные датчиков.","НОРМА");
+      $("monitorStatus").textContent="Мониторинг";
     }
   }
   function packet(p){
